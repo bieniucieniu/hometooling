@@ -6,26 +6,33 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ProduceStateScope
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.bieniucieniu.hometooling.feat.storage.database.AppDatabase
-import com.bieniucieniu.hometooling.feat.storage.database.TodoEntity
+import com.bieniucieniu.hometooling.feat.storage.database.KV
 import hometooling.composeapp.generated.resources.Res
 import hometooling.composeapp.generated.resources.compose_multiplatform
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -44,13 +51,12 @@ fun App() {
     MaterialTheme {
         var showContent by remember { mutableStateOf(false) }
         val db: AppDatabase = koinInject()
-        val todo = remember { MutableStateFlow<List<TodoEntity>?>(null) }
+        val todo = remember { MutableStateFlow<List<KV>?>(null) }
         val scope = rememberCoroutineScope()
         suspend fun addToDo() {
-            val dao = db.getDao()
-            dao.insert(TodoEntity(title = "title", content = "content"))
-            todo.emit(db.getDao().getAll())
+            val dao = db.kvDao()
         }
+        flow { emit(null) }.collectAsState(null)
 
         val state by todo.collectAsState()
         Column(
@@ -79,12 +85,31 @@ fun App() {
             LazyColumn {
                 state?.let { it1 ->
                     items(it1) {
-                        Text("${it.title} ${it.content}")
+                        Text("${it.key} ${it.value}")
                     }
                 } ?: item {
                     Text("loading")
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun AppSidebar() {
+    ModalNavigationDrawer({
+        ModalDrawerSheet { }
+    }) {
+
+    }
+}
+
+@Preview
+@Composable
+fun AppPreview() {
+    Scaffold {
+        Column(Modifier.padding(it)) {
+            Text("addhaslkjdad")
         }
     }
 }
